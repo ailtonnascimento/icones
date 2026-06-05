@@ -6,15 +6,32 @@
     <AssemblyName>XProtect.ExternalEvents.IconPlugin</AssemblyName>
     <RootNamespace>XProtect.ExternalEvents.IconPlugin</RootNamespace>
     <Version>2.4.0</Version>
-    <Authors>Seu Nome</Authors>
-    <Description>Plugin para gerenciamento de ícones de eventos externos no Milestone XProtect Smart Client</Description>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
     <Nullable>enable</Nullable>
     <LangVersion>9.0</LangVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <!-- Define símbolo para compilação sem SDK do Milestone -->
+    <DefineConstants>NO_MILESTONE_SDK</DefineConstants>
   </PropertyGroup>
 
-  <!-- Referências ao SDK do Milestone XProtect -->
-  <!-- Ajuste o caminho conforme sua instalação do Smart Client SDK -->
+  <!-- Incluir todos os arquivos .cs das subpastas -->
+  <ItemGroup>
+    <Compile Include="..\Controls\AlarmRingControl.xaml.cs"/>
+    <Compile Include="..\Models\ExternalEventData.cs"/>
+    <Compile Include="..\Models\IconConfiguration.cs"/>
+    <Compile Include="..\Services\IconManager.cs"/>
+    <Compile Include="..\Services\EventSubscriptionService.cs"/>
+  </ItemGroup>
+
+  <!-- XAML do controle WPF -->
+  <ItemGroup>
+    <Page Include="..\Controls\AlarmRingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <!-- SDK do Milestone — descomente quando o SDK estiver instalado -->
+  <!--
   <ItemGroup>
     <Reference Include="VideoOS.Platform">
       <HintPath>$(ProgramFiles)\Milestone\XProtect Smart Client SDK\VideoOS.Platform.dll</HintPath>
@@ -25,18 +42,11 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+  -->
 
-  <!-- Ícone padrão do plugin como recurso embedado -->
+  <!-- Ícones como recurso embedado -->
   <ItemGroup>
-    <EmbeddedResource Include="Resources\plugin_icon.png"/>
-    <EmbeddedResource Include="Resources\icons\*.png"/>
-  </ItemGroup>
-
-  <!-- Copiar ícones para pasta de saída -->
-  <ItemGroup>
-    <Content Include="Resources\icons\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="..\Resources\plugin_icon.png" Condition="Exists('..\Resources\plugin_icon.png')"/>
   </ItemGroup>
 
 </Project>

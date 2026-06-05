@@ -1,0 +1,12 @@
+COPIE VideoOS.Platform.dll PARA ESTA PASTA
+=========================================
+
+Na máquina com XProtect instalado, execute no PowerShell:
+
+  Get-ChildItem "C:\Program Files\Milestone" -Recurse -Filter "VideoOS.Platform.dll" | Select-Object -First 1 FullName
+
+Copie o arquivo encontrado para:
+
+  C:\Cursor\project01\lib\VideoOS.Platform.dll
+
+Depois compile novamente no Visual Studio.

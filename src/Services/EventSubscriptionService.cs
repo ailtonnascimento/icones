@@ -1,14 +1,14 @@
 using System;
+using System.Collections.Generic;
+using XProtect.ExternalEvents.IconPlugin.Models;
+
+#if !NO_MILESTONE_SDK
 using System.Windows;
 using VideoOS.Platform;
-using XProtect.ExternalEvents.IconPlugin.Models;
+#endif
 
 namespace XProtect.ExternalEvents.IconPlugin.Services
 {
-    /// <summary>
-    /// Subscreve e processa mensagens de eventos externos recebidas do XProtect.
-    /// Traduz mensagens do SDK para mudanças de estado nos ícones.
-    /// </summary>
     public class EventSubscriptionService
     {
         private readonly IconManager _iconManager;
@@ -18,10 +18,7 @@ namespace XProtect.ExternalEvents.IconPlugin.Services
             _iconManager = iconManager;
         }
 
-        /// <summary>
-        /// Callback registrado no EnvironmentManager para receber mensagens do servidor.
-        /// Executado em thread de background — despacha para UI thread via Dispatcher.
-        /// </summary>
+#if !NO_MILESTONE_SDK
         public object OnMessageReceived(Message message, FQID sender, FQID dest)
         {
             try
@@ -31,7 +28,6 @@ namespace XProtect.ExternalEvents.IconPlugin.Services
 
                 var newState = eventData.ToIconState();
 
-                // Despachar para UI thread (WPF requer atualização no thread principal)
                 Application.Current?.Dispatcher?.Invoke(() =>
                 {
                     _iconManager.SetStateByDeviceId(eventData.DeviceId, newState);
@@ -40,54 +36,32 @@ namespace XProtect.ExternalEvents.IconPlugin.Services
             }
             catch (Exception ex)
             {
-                Log.Error($"[EventSubscriptionService] Erro ao processar mensagem: {ex.Message}");
+                Console.WriteLine($"[EventService] Erro: {ex.Message}");
             }
-
             return null;
         }
 
-        /// <summary>
-        /// Faz o parse da mensagem genérica do XProtect para ExternalEventData.
-        /// Adapte conforme o formato de mensagem do seu sistema integrado.
-        /// </summary>
         private ExternalEventData? ParseMessage(Message message)
         {
             if (message?.Data == null) return null;
 
-            // Exemplo: mensagem com dicionário de propriedades
-            if (message.Data is System.Collections.Generic.Dictionary<string, object> dict)
+            if (message.Data is Dictionary<string, object> dict)
             {
                 return new ExternalEventData
                 {
-                    DeviceId  = dict.TryGetValue("DeviceId", out var id)
-                                    ? Guid.Parse(id.ToString()!) : Guid.Empty,
-                    EventType = dict.TryGetValue("EventType", out var et)
-                                    ? et.ToString()! : "Normal",
-                    DeviceName = dict.TryGetValue("DeviceName", out var dn)
-                                    ? dn.ToString()! : "Desconhecido",
-                    Priority  = dict.TryGetValue("Priority", out var pr)
-                                    ? pr.ToString()! : "Medium",
-                    Message   = dict.TryGetValue("Message", out var msg)
-                                    ? msg.ToString()! : string.Empty,
-                    Timestamp = DateTime.UtcNow
+                    DeviceId   = dict.TryGetValue("DeviceId",   out var id) ? Guid.Parse(id.ToString()!) : Guid.Empty,
+                    EventType  = dict.TryGetValue("EventType",  out var et) ? et.ToString()! : "Normal",
+                    DeviceName = dict.TryGetValue("DeviceName", out var dn) ? dn.ToString()! : "Desconhecido",
+                    Priority   = dict.TryGetValue("Priority",   out var pr) ? pr.ToString()! : "Medium",
+                    Message    = dict.TryGetValue("Message",    out var ms) ? ms.ToString()! : string.Empty,
+                    Timestamp  = DateTime.UtcNow
                 };
             }
-
-            // Fallback: se o dado for diretamente ExternalEventData
             return message.Data as ExternalEventData;
         }
 
-        /// <summary>
-        /// Efeitos colaterais baseados no estado e configuração do ícone:
-        /// notificações, popup de câmera, envio de e-mail.
-        /// </summary>
         private void HandleSideEffects(ExternalEventData eventData, IconState state)
         {
-            var config = _iconManager.GetAll() is var all
-                ? null
-                : null; // Aqui você buscaria a config pelo DeviceId
-
-            // Notificação no Smart Client
             if (state == IconState.Alarm || state == IconState.Failure)
             {
                 string msg = state == IconState.Alarm
@@ -98,8 +72,20 @@ namespace XProtect.ExternalEvents.IconPlugin.Services
                     new Message(Message.ID_SHOW_POPUP_MESSAGE) { Data = msg }
                 );
             }
-
-            Log.Info($"[EventService] Estado atualizado: {eventData.DeviceName} → {state} ({eventData.Timestamp:HH:mm:ss})");
         }
+#else
+        // Stub para compilação sem SDK — substituído pela implementação real com SDK
+        public void SimulateEvent(Guid deviceId, string eventType)
+        {
+            var data = new ExternalEventData
+            {
+                DeviceId  = deviceId,
+                EventType = eventType,
+                Timestamp = DateTime.UtcNow
+            };
+            _iconManager.SetStateByDeviceId(data.DeviceId, data.ToIconState());
+            Console.WriteLine($"[EventService] Simulado: {deviceId} → {eventType}");
+        }
+#endif
     }
 }

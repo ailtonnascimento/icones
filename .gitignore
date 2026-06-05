@@ -1,0 +1,30 @@
+# Build outputs
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.assets.json
+
+# Visual Studio
+*.rsuser
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Dados do plugin (configurações locais geradas em runtime)
+src/Resources/icons/*.png
+!src/Resources/icons/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

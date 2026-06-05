@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>XProtect.ExternalEvents.IconPlugin</AssemblyName>
+    <RootNamespace>XProtect.ExternalEvents.IconPlugin</RootNamespace>
+    <Version>2.4.0</Version>
+    <Authors>Seu Nome</Authors>
+    <Description>Plugin para gerenciamento de ícones de eventos externos no Milestone XProtect Smart Client</Description>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <!-- Referências ao SDK do Milestone XProtect -->
+  <!-- Ajuste o caminho conforme sua instalação do Smart Client SDK -->
+  <ItemGroup>
+    <Reference Include="VideoOS.Platform">
+      <HintPath>$(ProgramFiles)\Milestone\XProtect Smart Client SDK\VideoOS.Platform.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VideoOS.SmartClient.Infrastructure">
+      <HintPath>$(ProgramFiles)\Milestone\XProtect Smart Client SDK\VideoOS.SmartClient.Infrastructure.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Ícone padrão do plugin como recurso embedado -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\plugin_icon.png"/>
+    <EmbeddedResource Include="Resources\icons\*.png"/>
+  </ItemGroup>
+
+  <!-- Copiar ícones para pasta de saída -->
+  <ItemGroup>
+    <Content Include="Resources\icons\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

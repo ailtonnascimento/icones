@@ -1,0 +1,138 @@
+<UserControl x:Class="XProtect.ExternalEvents.IconPlugin.Controls.AlarmRingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             Width="64" Height="64">
+
+    <UserControl.Resources>
+
+        <!-- Animação: pulso contínuo (Alarme - vermelho) -->
+        <Storyboard x:Key="AlarmPulseStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="AlarmRing"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1.0" To="0.25"
+                             Duration="0:0:0.8"
+                             AutoReverse="True"
+                             EasingFunction="{x:Null}"/>
+            <DoubleAnimation Storyboard.TargetName="AlarmRingScale"
+                             Storyboard.TargetProperty="ScaleX"
+                             From="1.0" To="1.12"
+                             Duration="0:0:0.8"
+                             AutoReverse="True"/>
+            <DoubleAnimation Storyboard.TargetName="AlarmRingScale"
+                             Storyboard.TargetProperty="ScaleY"
+                             From="1.0" To="1.12"
+                             Duration="0:0:0.8"
+                             AutoReverse="True"/>
+        </Storyboard>
+
+        <!-- Animação: pisca lento tracejado (Falha - âmbar) -->
+        <Storyboard x:Key="FailurePulseStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="FailureRing"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1.0" To="0.2"
+                             Duration="0:0:1.1"
+                             AutoReverse="True"/>
+        </Storyboard>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Ícone do dispositivo (imagem central) -->
+        <Image x:Name="DeviceIcon"
+               Width="36" Height="36"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Stretch="Uniform"
+               RenderOptions.BitmapScalingMode="HighQuality"/>
+
+        <!-- Anel de Alarme (vermelho pulsante) -->
+        <Ellipse x:Name="AlarmRing"
+                 Width="58" Height="58"
+                 Stroke="#E24B4A"
+                 StrokeThickness="3"
+                 Fill="Transparent"
+                 Opacity="0"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <ScaleTransform x:Name="AlarmRingScale" ScaleX="1" ScaleY="1"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Triggers>
+                <DataTrigger Binding="{Binding IconState}" Value="Alarm">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard x:Name="AlarmStoryboard"
+                                         Storyboard="{StaticResource AlarmPulseStoryboard}"/>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="AlarmStoryboard"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Ellipse.Triggers>
+        </Ellipse>
+
+        <!-- Anel de Falha (âmbar tracejado) -->
+        <Ellipse x:Name="FailureRing"
+                 Width="58" Height="58"
+                 Stroke="#EF9F27"
+                 StrokeThickness="3"
+                 StrokeDashArray="4 3"
+                 Fill="Transparent"
+                 Opacity="0">
+            <Ellipse.Triggers>
+                <DataTrigger Binding="{Binding IconState}" Value="Failure">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard x:Name="FailureStoryboard"
+                                         Storyboard="{StaticResource FailurePulseStoryboard}"/>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="FailureStoryboard"/>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Ellipse.Triggers>
+        </Ellipse>
+
+        <!-- Dot de status (canto superior direito) -->
+        <Ellipse x:Name="StatusDot"
+                 Width="12" Height="12"
+                 HorizontalAlignment="Right"
+                 VerticalAlignment="Top"
+                 Margin="0,2,2,0"
+                 Stroke="White"
+                 StrokeThickness="1.5">
+            <Ellipse.Style>
+                <Style TargetType="Ellipse">
+                    <Setter Property="Fill" Value="#639922"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IconState}" Value="Alarm">
+                            <Setter Property="Fill" Value="#E24B4A"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IconState}" Value="Failure">
+                            <Setter Property="Fill" Value="#EF9F27"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Ellipse.Style>
+        </Ellipse>
+
+    </Grid>
+
+    <!-- Triggers de visibilidade baseados no IconState -->
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IconState}" Value="Alarm">
+                    <Setter Property="ToolTip" Value="ALARME ATIVO — clique para detalhes"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IconState}" Value="Failure">
+                    <Setter Property="ToolTip" Value="FALHA DE DISPOSITIVO — clique para detalhes"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IconState}" Value="Normal">
+                    <Setter Property="ToolTip" Value="Dispositivo operacional"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
+
+</UserControl>

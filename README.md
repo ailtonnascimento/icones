@@ -75,3 +75,4 @@ Após instalar, acesse **Configurações → Plugins → External Events Icon Ma
 ## Licença
 
 MIT License — veja [LICENSE](LICENSE)
+# icone_claude
